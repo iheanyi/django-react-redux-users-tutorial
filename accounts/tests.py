@@ -9,6 +9,7 @@ class AccountsTest(APITestCase):
     def setUp(self):
         # We want to go ahead and originally create a user. 
         self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword')
+        
         # URL for creating an account.
         self.create_url = reverse('account-create')
 
@@ -22,11 +23,12 @@ class AccountsTest(APITestCase):
             'password': 'somepassword'
         }
 
-        response = self.client.post(url , data, format='json')
+        response = self.client.post(self.create_url , data, format='json')
         user = User.objects.latest('id')
         #token = Token.objects.get(user=user)
+        self.assertEqual(User.objects.count(), 2)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['username'], data['username'])
         self.assertEqual(response.data['email'], data['email'])
         #self.assertEqual(response.data['token'], token.key)
-        self.assertFalse(response.data['password'] in response.data)
+        self.assertFalse('password' in response.data)
